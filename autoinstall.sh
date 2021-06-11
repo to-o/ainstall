@@ -1,12 +1,15 @@
 #!/bin/sh
 #控制那些需要进行安装 根据选择进行安装
 
-#SMABA=1  							#安装samba
-#GIT_ALIAS=1 						#git 的快捷键
-#GIOTRASH=1							#垃圾桶
+DEBUILD=1
+SMABA=1  							#安装samba
+GIT_ALIAS=1 						#git 的快捷键
+GIOTRASH=1							#垃圾桶
 #ZSHIN=1							#zsh
-#DNSSEVER=0							#DNS增加
+DNSSEVER=0							#DNS增加
 #CRE_SSH='wangsong@kylinos.cn'		#ssh 密匙
+
+set -e
 
 echo "----------------自动化安装脚本开始----------------"
 
@@ -16,11 +19,17 @@ sudo apt update -y
 #配置DNS服务
 if [ $DNSSEVER ];then
 	echo "-------------配置DNS服务-----------"
-	sudo sed '2 anameserver 172.20.191.2' -i /etc/resolv.conf
-	sudo sed '3 anameserver 172.17.50.100' -i /etc/resolv.conf
+	sudo sed '1 anameserver 172.20.191.2' -i /etc/resolv.conf
+	sudo sed '2 anameserver 172.17.50.100' -i /etc/resolv.conf
+	sudo apt update -y
 	
 #	sudo sh -c 'echo nameserver 172.20.191.2 >> /etc/resolv.conf'
 #	sudo sh -c 'echo nameserver 172.17.50.100 >> /etc/resolv.conf'
+fi
+
+if [ $DEBUILD ];then
+	echo "-------------配置debuild-----------"
+	sudo apt install debhelper devscripts automake dh-make build-essential cmake meson -y
 fi
 
 #增加垃圾回收
@@ -54,7 +63,6 @@ fi
 if [ $GIT ];then
 	echo "-------------git 全局配置-----------"
 	sudo apt install git -y
-	su kylin
 	git config --global alias.co checkout
 	git config --global alias.br branch
 	git config --global alias.ci commit
